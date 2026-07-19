@@ -28,6 +28,83 @@ The session created the initial repository commit, including the interactive Thr
 
 Cloudflare productionization, GitHub Actions CI, and the later project documentation were separate follow-up work and are not counted as Kimi output in the primary comparison.
 
+## Original prompt timeline
+
+The session contains eight `turn.prompt` records. The text below is reproduced verbatim, including capitalization, spacing, and original spellings such as `Cloudfare` and `rpx`. Timestamps use the originating computer's local timezone, Pacific Daylight Time.
+
+### Turn 0 — Initial concept and plan
+
+**July 18, 2026 at 4:01:40 PM PDT**
+
+> can you build some 3D interactive modeling of san francisco golden gate bridge? I heard three.js and html based interface. show me a plan first
+
+This prompt established the product, technology direction, and plan-first workflow. The resulting turn created the initial Three.js application and its procedural scene structure.
+
+### Turn 1 — Free-flight navigation
+
+**July 18, 2026 at 4:32:32 PM PDT**
+
+> I cannot have free flying in the html view. it feels like stuck in the middle to look around only.  why is that? can you fix it?
+
+This prompt reported a concrete usability problem and requested diagnosis plus implementation. It drove the free-flight camera and movement-control work.
+
+### Turn 2 — Visual realism
+
+**July 18, 2026 at 4:48:33 PM PDT**
+
+> make the model photo realistic as much as possible
+
+This prompt initiated the largest visual-quality pass, covering more detailed geometry, materials, terrain, atmosphere, lighting, water, traffic, and post-processing. The turn completed substantial work before its next model request encountered the first subscription rate limit.
+
+### Turn 3 — Resume interrupted work
+
+**July 18, 2026 at 5:54:04 PM PDT**
+
+> continue
+
+This prompt resumed the interrupted visual-quality and validation work after the first rate-limit event.
+
+### Turn 4 — Free hosting options
+
+**July 18, 2026 at 8:43:46 PM PDT**
+
+> where can I deploy it online for free?
+
+This prompt shifted the session from implementation to deployment research.
+
+### Turn 5 — Cloudflare Pages setup
+
+**July 18, 2026 at 8:45:44 PM PDT**
+
+> help me get Cloudfare pages
+
+This prompt selected Cloudflare as the deployment target and requested setup guidance.
+
+### Turn 6 — GitHub-to-Cloudflare workflow
+
+**July 18, 2026 at 8:48:44 PM PDT**
+
+> I want to store things in a github repo under my account, then somehow deploy to cloudfare. walk me through the process
+
+This prompt defined the desired source-control and deployment workflow. The corresponding turn covered repository creation and Git-connected Cloudflare deployment steps.
+
+### Turn 7 — Deploy-command clarification
+
+**July 18, 2026 at 8:56:39 PM PDT**
+
+> It asks for Deploy command, the default is "rpx wrangler deploy". what should I do?
+
+This prompt asked for help with the final Cloudflare build form. Its model request failed immediately with the second subscription rate-limit response, so the Kimi session contains no successful answer to this prompt. The later Cloudflare deployment fix was completed separately and is not attributed to this session.
+
+### Prompt progression
+
+| Phase | Turns | Purpose |
+| --- | --- | --- |
+| Build | 0 | Define and create the initial Three.js experience |
+| Correct | 1 | Diagnose and fix camera navigation |
+| Refine | 2–3 | Improve realism and resume interrupted iteration |
+| Deliver | 4–7 | Choose hosting and work through GitHub/Cloudflare setup |
+
 ## Time methodology
 
 Wall-clock session duration is deliberately excluded. The session hit Kimi's subscription rate limit twice and contained long periods when no agent work was occurring. Counting the full session span would therefore misrepresent implementation time.
@@ -162,6 +239,7 @@ The audit used local Kimi Code artifacts rather than estimates from chat history
 - The session's `state.json` supplied its title, workspace, and timestamps.
 - The session diagnostic log supplied model name, thinking effort, request timing, output-token checks, and rate-limit failures.
 - `kimi export` supplied `agents/main/wire.jsonl`, containing 123 structured `usage.record` entries.
+- The same `wire.jsonl` contained the eight ordered `turn.prompt` records used for the verbatim prompt timeline.
 - Token totals were calculated by summing `inputOther`, `inputCacheRead`, `inputCacheCreation`, and `output` across those records.
 - Active time was calculated from per-turn request/response timestamps, excluding inter-turn gaps and failed rate-limit requests.
 
