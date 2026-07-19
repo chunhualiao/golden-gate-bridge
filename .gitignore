@@ -1,4 +1,5 @@
 node_modules/
 shots/
 dist/
+.worktree/
 .DS_Store
