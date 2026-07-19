@@ -8,6 +8,8 @@ An interactive, browser-based recreation of San Francisco's Golden Gate Bridge. 
 
 This project was originally vibe-coded with the latest **Kimi K3** model available at the time, then tested and prepared for deployment on Cloudflare Workers.
 
+For a measured comparison of Kimi's active development time, token usage, API-equivalent cost, and estimated manual engineering effort, see the [AI Development Economics Report](AI_DEVELOPMENT_ECONOMICS.md).
+
 ## Highlights
 
 - A scale-conscious suspension bridge model where one scene unit represents one metre
