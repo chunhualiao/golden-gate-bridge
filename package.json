@@ -4,7 +4,8 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "node scripts/build.mjs",
+    "test": "node --test test/*.test.mjs"
   },
   "keywords": [],
   "author": "",
@@ -15,5 +16,8 @@
   },
   "allowScripts": {
     "puppeteer@25.3.0": true
+  },
+  "devDependencies": {
+    "wrangler": "^4.112.0"
   }
 }
