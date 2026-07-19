@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Golden Gate Bridge — Interactive 3D</title>
+<link rel="icon" href="data:,">
+<style>
+  :root {
+    --panel-bg: rgba(12, 16, 22, 0.72);
+    --panel-border: rgba(255, 255, 255, 0.09);
+    --accent: #e0563c;
+    --text: #e8e6e1;
+    --text-dim: #9aa0a8;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; }
+  body {
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: var(--text);
+    background: #0b0e13;
+  }
+  #scene-canvas { position: fixed; inset: 0; display: block; }
+
+  .panel {
+    position: fixed;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+  }
+
+  /* Title */
+  #title-panel { top: 16px; left: 16px; padding: 12px 18px; }
+  #title-panel h1 { font-size: 17px; font-weight: 650; letter-spacing: 0.02em; }
+  #title-panel h1 span { color: var(--accent); }
+  #title-panel p { font-size: 11.5px; color: var(--text-dim); margin-top: 3px; }
+
+  /* Controls */
+  #controls-panel { top: 16px; right: 16px; padding: 12px 14px; width: 208px; }
+  .control-group { margin-bottom: 12px; }
+  .control-group:last-child { margin-bottom: 0; }
+  .control-label {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.09em; color: var(--text-dim); margin-bottom: 6px;
+  }
+  .btn-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  button {
+    font: inherit; font-size: 11.5px; color: var(--text);
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 7px; padding: 5px 10px; cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  button:hover { background: rgba(255, 255, 255, 0.14); }
+  button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .slider-row { display: flex; align-items: center; gap: 8px; }
+  input[type="range"] {
+    flex: 1; height: 3px; accent-color: var(--accent); cursor: pointer;
+  }
+  #fog-value { font-size: 11px; color: var(--text-dim); width: 34px; text-align: right; }
+
+  /* Info card */
+  #info-card {
+    left: 16px; bottom: 16px; width: 320px; padding: 16px 18px;
+    display: none;
+  }
+  #info-card.visible { display: block; }
+  #info-card h2 { font-size: 15px; font-weight: 650; color: var(--accent); margin-bottom: 6px; padding-right: 22px; }
+  #info-card p { font-size: 12.5px; line-height: 1.55; color: var(--text); }
+  #info-close {
+    position: absolute; top: 10px; right: 10px;
+    width: 24px; height: 24px; padding: 0; border-radius: 50%;
+    font-size: 13px; line-height: 1;
+  }
+
+  /* Help footer */
+  #help-panel {
+    bottom: 16px; right: 16px; padding: 8px 14px;
+    font-size: 11px; color: var(--text-dim);
+  }
+  #help-panel b { color: var(--text); font-weight: 600; }
+
+  #hover-tip {
+    position: fixed; pointer-events: none; display: none;
+    background: rgba(12, 16, 22, 0.85); border: 1px solid var(--panel-border);
+    border-radius: 6px; padding: 3px 9px; font-size: 11.5px; color: var(--text);
+    z-index: 10; white-space: nowrap;
+  }
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "./vendor/three.module.js",
+    "three/addons/controls/OrbitControls.js": "./vendor/OrbitControls.js",
+    "three/addons/objects/Sky.js": "./vendor/objects/Sky.js",
+    "three/addons/objects/Water.js": "./vendor/objects/Water.js",
+    "three/addons/postprocessing/EffectComposer.js": "./vendor/postprocessing/EffectComposer.js",
+    "three/addons/postprocessing/RenderPass.js": "./vendor/postprocessing/RenderPass.js",
+    "three/addons/postprocessing/ShaderPass.js": "./vendor/postprocessing/ShaderPass.js",
+    "three/addons/postprocessing/UnrealBloomPass.js": "./vendor/postprocessing/UnrealBloomPass.js",
+    "three/addons/postprocessing/OutputPass.js": "./vendor/postprocessing/OutputPass.js"
+  }
+}
+</script>
+</head>
+<body>
+  <canvas id="scene-canvas"></canvas>
+
+  <div id="title-panel" class="panel">
+    <h1>Golden Gate Bridge <span>· San Francisco</span></h1>
+    <p>Interactive 3D model — main span 1,280 m · opened May 27, 1937</p>
+  </div>
+
+  <div id="controls-panel" class="panel">
+    <div class="control-group">
+      <div class="control-label">Camera</div>
+      <div class="btn-row">
+        <button data-preset="overview">Overview</button>
+        <button data-preset="deck">Deck drive</button>
+        <button data-preset="tower">Tower top</button>
+        <button data-preset="side">Side profile</button>
+      </div>
+    </div>
+    <div class="control-group">
+      <div class="control-label">Movement</div>
+      <div class="btn-row">
+        <button data-mode="orbit" class="active">Orbit</button>
+        <button data-mode="fly">Fly (WASD)</button>
+      </div>
+    </div>
+    <div class="control-group">
+      <div class="control-label">Scene</div>
+      <div class="btn-row">
+        <button data-toggle="night">Night</button>
+        <button data-toggle="rotate">Auto-rotate</button>
+        <button data-toggle="traffic" class="active">Traffic</button>
+        <button data-toggle="wireframe">Wireframe</button>
+      </div>
+    </div>
+    <div class="control-group">
+      <div class="control-label">Fog — "Karl"</div>
+      <div class="slider-row">
+        <input type="range" id="fog-slider" min="0" max="100" value="12">
+        <span id="fog-value">12%</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="info-card" class="panel">
+    <button id="info-close" title="Close">×</button>
+    <h2 id="info-title"></h2>
+    <p id="info-body"></p>
+  </div>
+
+  <div id="help-panel" class="panel">
+    <b>Drag</b> orbit · <b>Wheel</b> zoom · <b>Right-drag</b> pan · <b>Fly</b>: WASD/QE move, drag look, wheel speed · <b>1–4</b> presets
+  </div>
+
+  <div id="hover-tip"></div>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
